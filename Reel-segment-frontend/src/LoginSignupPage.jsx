@@ -1,33 +1,89 @@
 import { useState } from "react";
 import { SocialIcon } from "./SocalIcon";
 import { motion, AnimatePresence } from "framer-motion";
+import { LOGIN, REGISTER } from "./api";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LoginSignupPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [user, setUser] = useState({ username: "", email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle mode toggle between login and signup
+  const loginMutation = useMutation({
+    mutationFn: async (user) => {
+      const response = await axios.post(LOGIN, user);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("Login successfully with the foll credentials", data);
+      localStorage.setItem("token", data.token);
+      toast.success("Login successful!", {
+        // Toast notification
+        position: "top-right", // Adjust position as needed
+        autoClose: 3000, // Duration in milliseconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      window.location.href = "/";
+    },
+    onError: (err) => {
+      console.error("login error", err.response.data.message || err.message);
+      toast.error(
+        `Login failed: ${err.response?.data?.message || err.message}`,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        }
+      );
+    },
+  });
+  const signupMutation = useMutation({
+    mutationFn: async (user) => {
+      const response = await axios.post(REGISTER, user);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("Signup Success:", data);
+      localStorage.setItem("token", data.token);
+      // window.location.href = "/";
+    },
+    onError: (err) => {
+      console.error(
+        "Signup Error:",
+        err.response?.data?.message || err.message
+      );
+    },
+  });
+
   const handleModeToggle = () => {
     setIsLogin(!isLogin);
   };
 
-  // Simulated form submission
+  const handleChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log(isLogin ? "Logging in with:" : "Signing up with:", {
-        email,
-        username: !isLogin ? username : null,
-        password,
-      });
-    }, 1500);
+    // console.log(user);
+    if (isLogin) {
+      loginMutation.mutate(user);
+    } else {
+      signupMutation.mutate(user);
+    }
   };
 
   return (
@@ -147,9 +203,9 @@ const LoginSignupPage = () => {
                 <div className="relative">
                   <motion.input
                     type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    name="email"
+                    // value={user.email}
+                    onChange={handleChange}
                     className="peer w-full p-4 pt-6 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg placeholder-transparent focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
                     placeholder="Email"
                     required
@@ -175,9 +231,9 @@ const LoginSignupPage = () => {
                     >
                       <motion.input
                         type="text"
-                        id="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        name="username"
+                        // value={user.username}
+                        onChange={handleChange}
                         className="peer w-full p-4 pt-6 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg placeholder-transparent focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
                         placeholder="Username"
                         required={!isLogin}
@@ -197,9 +253,9 @@ const LoginSignupPage = () => {
                 <div className="relative">
                   <motion.input
                     type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    name="password"
+                    // value={user.password}
+                    onChange={handleChange}
                     className="peer w-full p-4 pt-6 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg placeholder-transparent focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
                     placeholder="Password"
                     required
