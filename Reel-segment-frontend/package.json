@@ -11,11 +11,13 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.17",
+    "@tanstack/react-query": "^5.71.1",
     "axios": "^1.8.4",
     "framer-motion": "^12.6.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.4.1",
+    "react-toastify": "^11.0.5",
     "tailwindcss": "^4.0.17"
   },
   "devDependencies": {
@@ -24,6 +26,7 @@
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.21.0",
+    "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
