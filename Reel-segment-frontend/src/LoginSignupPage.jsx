@@ -21,9 +21,8 @@ const LoginSignupPage = () => {
       console.log("Login successfully with the foll credentials", data);
       localStorage.setItem("token", data.token);
       toast.success("Login successful!", {
-        // Toast notification
-        position: "top-right", // Adjust position as needed
-        autoClose: 3000, // Duration in milliseconds
+        position: "top-right",
+        autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -58,7 +57,6 @@ const LoginSignupPage = () => {
     onSuccess: (data) => {
       console.log("Signup Success:", data);
       localStorage.setItem("token", data.token);
-      // window.location.href = "/";
     },
     onError: (err) => {
       console.error(
