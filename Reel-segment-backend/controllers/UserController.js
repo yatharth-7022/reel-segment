@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 // const UserModel = require("../models/UserModel");
 const { findUserByEmail, createUser } = require("../models/UserModel");
+const UserModel = require("../models/UserModel");
 const UserController = {
   register: async (req, res) => {
     const { username, email, password } = req.body;
@@ -43,6 +44,18 @@ const UserController = {
       });
     } catch (error) {
       res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
+  getUser: async (req, res) => {
+    try {
+      const user = await UserModel.findUserById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: "User Not Found" });
+      }
+      return res.status(200).json({ message: "User Found", user: user });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Internal Server Error", error });
     }
   },
 };
