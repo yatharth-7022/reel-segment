@@ -10,7 +10,6 @@ const WelcomePage = () => {
     threshold: 0.1,
   });
 
-  // Particle system setup
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -18,27 +17,23 @@ const WelcomePage = () => {
     const particleCount = 50;
     const particles = [];
 
-    // Create particles
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement("div");
       particle.className = "absolute rounded-full bg-white opacity-0";
 
-      // Random size between 2px and 5px
       const size = Math.random() * 3 + 2;
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
 
-      // Random position
       particle.style.left = `${Math.random() * 100}%`;
       particle.style.top = `${Math.random() * 100}%`;
 
-      // Store animation data
       const data = {
-        x: Math.random() * 100 - 50, // Random horizontal velocity
-        y: Math.random() * -100 - 50, // Upward velocity
-        opacity: Math.random() * 0.5 + 0.3, // Random opacity
-        delay: Math.random() * 10, // Random delay
-        lifetime: Math.random() * 3 + 2, // How long the particle lives
+        x: Math.random() * 100 - 50,
+        y: Math.random() * -100 - 50,
+        opacity: Math.random() * 0.5 + 0.3,
+        delay: Math.random() * 10,
+        lifetime: Math.random() * 3 + 2,
         size,
       };
 
@@ -49,7 +44,6 @@ const WelcomePage = () => {
     let animationFrameId;
     let lastTime = 0;
 
-    // Animation loop
     const animate = (time) => {
       if (!lastTime) lastTime = time;
       const deltaTime = (time - lastTime) / 1000;
@@ -58,22 +52,18 @@ const WelcomePage = () => {
       particles.forEach((particle) => {
         const { element, data } = particle;
 
-        // Update particle data
         data.delay -= deltaTime;
 
         if (data.delay <= 0) {
-          // If delay is over, start animating
           data.lifetime -= deltaTime;
 
           if (data.lifetime <= 0) {
-            // Reset particle when lifetime is over
             data.delay = Math.random() * 5;
             data.lifetime = Math.random() * 3 + 2;
             element.style.opacity = "0";
             element.style.left = `${Math.random() * 100}%`;
             element.style.top = `${Math.random() * 100}%`;
           } else {
-            // Update particle position and opacity
             const newLeft =
               parseFloat(element.style.left) + data.x * deltaTime * 0.01;
             const newTop =
@@ -167,7 +157,7 @@ const WelcomePage = () => {
         >
           <div className="overflow-hidden">
             <motion.h1
-              className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
+              className="text-3xl flex  md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
               animate={{ x: [0, -100, 0] }}
               transition={{
                 repeat: Infinity,
@@ -178,9 +168,10 @@ const WelcomePage = () => {
                 backgroundSize: "200% auto",
               }}
             >
-              Welcome {username} <span className="inline-block ml-4">✨</span>
-              Welcome {username} <span className="inline-block ml-4">✨</span>
-              Welcome {username} <span className="inline-block ml-4">✨</span>
+              {/* Welcome {username} <span className="inline-block ml-4">✨</span> */}
+              <span>Welcome {username}</span>{" "}
+              <span className="inline-block ml-4">✨</span>
+              {/* Welcome {username} <span className="inline-block ml-4">✨</span> */}
             </motion.h1>
           </div>
 
