@@ -76,7 +76,6 @@ const LoginSignupPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // console.log(user);
     if (isLogin) {
       loginMutation.mutate(user);
     } else {
