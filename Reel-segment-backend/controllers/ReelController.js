@@ -33,4 +33,25 @@ const ReelController = {
       res.status(500).json({ message: "Internal Server Error" });
     }
   },
+  getAllReels: async (req, res) => {
+    try {
+      console.log("🔍 [getAllReels] Request received");
+
+      const reels = await ReelModel.getAllReels();
+
+      if (!reels) {
+        console.log("⚠️ [getAllReels] No reels found");
+        return res.status(404).json({ message: "No reels available" });
+      }
+
+      console.log("✅ [getAllReels] Successfully retrieved reels:", reels);
+      res.status(201).json(reels);
+    } catch (error) {
+      console.error("❌ [getAllReels] Error fetching reels:", error);
+      res
+        .status(500)
+        .json({ message: "Internal Server Error", error: error.message });
+    }
+  },
 };
+module.exports = { ReelController, upload };
