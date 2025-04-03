@@ -1,18 +1,31 @@
 const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 
-const authMiddleware = async (req, res, next) => {
+dotenv.config();
+
+const authenticateUser = (req, res, next) => {
   const token = req.header("Authorization");
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized: No token found" });
+
+  console.log("Received Token:", token);
+
+  if (!token || !token.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ message: "Access denied. No token provided." });
   }
 
   try {
-    const decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(
+      token.replace("Bearer ", ""),
+      process.env.JWT_SECRET_KEY
+    );
     req.user = decoded;
+    console.log("Decoded User:", req.user);
     next();
   } catch (error) {
-    return res.status(403).json({ message: "Invalid Token" });
+    console.error("JWT Verification Error:", error);
+    res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
-module.exports = authMiddleware;
+module.exports = authenticateUser;

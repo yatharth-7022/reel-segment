@@ -13,5 +13,11 @@ const UserModel = {
     const result = await pool.query(query, [email]);
     return result.rows[0];
   },
+
+  findUserById: async (id) => {
+    const query = `SELECT username FROM users WHERE id = $1`;
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
+  },
 };
 module.exports = UserModel;
