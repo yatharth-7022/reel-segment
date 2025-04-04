@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { useWelcome } from "./hooks/useWelcome";
+import { useWelcome } from "../hooks/useWelcome";
 import axios from "axios";
-import { REELS_UPLOAD } from "./api";
+import { REELS_UPLOAD } from "../api";
 import { QueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import ReelsSection from "../ReelsSection";
+import ReelsSection from "./ReelsSection";
 
 const WelcomePage = () => {
   const [showReels, setShowReels] = useState(false);

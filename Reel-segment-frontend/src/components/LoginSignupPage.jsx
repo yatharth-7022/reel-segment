@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { SocialIcon } from "./SocalIcon";
+import { SocialIcon } from "../SocalIcon";
 import { motion, AnimatePresence } from "framer-motion";
-import { LOGIN, REGISTER } from "./api";
+import { LOGIN, REGISTER } from "../api";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-toastify";
