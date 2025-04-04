@@ -4,3 +4,4 @@ export const LOGIN = `${USER_BASE_URL}/login`;
 export const REGISTER = `${USER_BASE_URL}/register`;
 export const USER = `${USER_BASE_URL}/user`;
 export const REELS_UPLOAD = `${REEL_BASE_URL}/upload-reel`;
+export const GET_REELS = `${REEL_BASE_URL}/get-all-reels`;
