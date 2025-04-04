@@ -16,6 +16,7 @@ export const useWelcome = () => {
       return response.data.user;
     },
     enabled: !!localStorage.getItem("token"),
+    refetchOnWindowFocus: false,
   });
   return { userData };
 };

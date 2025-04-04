@@ -7,16 +7,17 @@ import { REELS_UPLOAD } from "../api";
 import { QueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import ReelsSection from "./ReelsSection";
+import { FileUploadDialog } from "./FileUploadDialog";
 
 const WelcomePage = () => {
   const [showReels, setShowReels] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const containerRef = useRef(null);
   const inputRef = useRef(null);
   const [ref, inView] = useInView({
     triggerOnce: false,
     threshold: 0.1,
   });
-  const queryClient = new QueryClient();
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -97,63 +98,7 @@ const WelcomePage = () => {
       });
     };
   }, []);
-  const fileUploadMutation = useMutation({
-    mutationFn: async (file) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      const token = localStorage.getItem("token");
-      const response = axios.post(REELS_UPLOAD, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(["reels"]);
-      toast.success("Reel Uploaded!", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-    },
-    onError: (error) => {
-      console.error(error);
-      toast.error("Error uploading reel", {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
-    },
-  });
-  const handleUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      fileUploadMutation.mutate(file);
-      fileUploadMutation.isPending &&
-        toast.info("Uploading...", {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
-    }
-  };
+
   const { userData } = useWelcome();
   console.log({ userData });
   const username = userData?.username;
@@ -193,7 +138,7 @@ const WelcomePage = () => {
           <motion.div
             className="absolute bottom-1/3 left-1/2 w-96 h-96 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl"
             animate={{
-              x: [0, 20, -30, 0],
+              x: [0, 20, -60, 0],
               y: [0, -20, 50, 0],
               scale: [1, 1.1, 0.9, 1],
             }}
@@ -208,7 +153,6 @@ const WelcomePage = () => {
 
         <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:40px_40px] opacity-20"></div>
       </div>
-
       <motion.div
         className="relative z-10 w-full max-w-4xl mx-auto px-6 flex flex-col items-center"
         initial={{ opacity: 0 }}
@@ -216,15 +160,15 @@ const WelcomePage = () => {
         transition={{ duration: 1 }}
       >
         <motion.div
-          className="relative mt-10 overflow-hidden w-full mb-12 backdrop-blur-lg bg-gray-800 bg-opacity-30 p-6 rounded-2xl border border-gray-700 shadow-lg"
+          className="relative mt-10 overflow-hidden w-full mb-12 backdrop-blur-lg bg-opacity-30 p-6 rounded-2xl "
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
         >
           <div className="overflow-hidden">
             <motion.h1
-              className="text-3xl flex  md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
-              animate={{ x: [0, -100, 0] }}
+              className="text-3xl  md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
+              animate={{ x: [-100, 50, 100] }}
               transition={{
                 repeat: Infinity,
                 duration: 15,
@@ -234,10 +178,7 @@ const WelcomePage = () => {
                 backgroundSize: "200% auto",
               }}
             >
-              {/* Welcome {username} <span className="inline-block ml-4">✨</span> */}
-              <span>Welcome {username}</span>{" "}
-              <span className="inline-block ml-4">✨</span>
-              {/* Welcome {username} <span className="inline-block ml-4">✨</span> */}
+              <span>Welcome {username} ✨</span>
             </motion.h1>
           </div>
 
@@ -277,15 +218,15 @@ const WelcomePage = () => {
               className="relative group"
             >
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-              <input
+              {/* <input
                 type="file"
                 ref={inputRef}
                 className="hidden"
                 onChange={handleUpload}
                 accept="video/*"
-              />
+              /> */}
               <button
-                onClick={() => inputRef.current.click()}
+                onClick={() => setIsDialogOpen(true)}
                 className="relative flex flex-col items-center justify-center h-64 w-full rounded-xl bg-gray-800 bg-opacity-90 backdrop-blur-sm border border-gray-700 p-6 shadow-lg transition-all duration-500 hover:shadow-xl"
               >
                 <motion.div
@@ -434,6 +375,13 @@ const WelcomePage = () => {
         </motion.div>
       </motion.div>
       {showReels && <ReelsSection onClose={() => setShowReels(false)} />}
+      {isDialogOpen && (
+        <FileUploadDialog
+          open={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+        />
+      )}
+      ``
     </div>
   );
 };
