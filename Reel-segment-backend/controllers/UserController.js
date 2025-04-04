@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 // const UserModel = require("../models/UserModel");
 const { findUserByEmail, createUser } = require("../models/UserModel");
 const UserModel = require("../models/UserModel");
+const generateTokens = require("../utils/generateToken");
 const UserController = {
   register: async (req, res) => {
     const { username, email, password } = req.body;
@@ -32,12 +33,18 @@ const UserController = {
       if (!isMatch) {
         return res.status(400).json({ message: "Invalid Credentials" });
       }
-      const token = jwt.sign(
-        { id: user.id, email: user.email },
-        process.env.JWT_SECRET_KEY,
-        { expiresIn: "1h" }
-      );
-      res.json({
+
+      const { token, refreshToken } = generateTokens(user);
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        path: "/", // Use root path to make cookie available to all endpoints
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      res.status(200).json({
         message: "Login successful",
         token,
         user: { id: user.id, username: user.username, email: user.email },

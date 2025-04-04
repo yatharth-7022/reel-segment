@@ -11,6 +11,7 @@ const ReelController = {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
       }
+      const caption = req.body.caption || "";
       const result = await cloudinary.uploader.upload_stream(
         { resource_type: "video", folder: "reels" },
         async (error, uploadResult) => {
@@ -21,7 +22,8 @@ const ReelController = {
           }
           const newReel = await ReelModel.createReel(
             uploadResult.secure_url,
-            req.user.id
+            req.user.id,
+            caption
           );
           return res
             .status(201)
@@ -36,11 +38,12 @@ const ReelController = {
   getAllReels: async (req, res) => {
     try {
       console.log("🔍 [getAllReels] Request received");
+      const { page = 1, limit = 3 } = req.query;
+      const offset = (page - 1) * limit;
 
-      const reels = await ReelModel.getAllReels();
+      const reels = await ReelModel.getAllReels(limit, offset);
 
-      if (!reels) {
-        console.log("⚠️ [getAllReels] No reels found");
+      if (!reels.length) {
         return res.status(404).json({ message: "No reels available" });
       }
 
