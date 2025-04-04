@@ -2,15 +2,20 @@ import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useWelcome } from "./hooks/useWelcome";
+import axios from "axios";
+import { REELS_UPLOAD } from "./api";
+import { QueryClient, useMutation } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 const WelcomePage = () => {
   const containerRef = useRef(null);
+  const inputRef = useRef(null);
   const [ref, inView] = useInView({
     triggerOnce: false,
     threshold: 0.1,
   });
+  const queryClient = new QueryClient();
 
-  // Particle system setup
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -18,27 +23,23 @@ const WelcomePage = () => {
     const particleCount = 50;
     const particles = [];
 
-    // Create particles
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement("div");
       particle.className = "absolute rounded-full bg-white opacity-0";
 
-      // Random size between 2px and 5px
       const size = Math.random() * 3 + 2;
       particle.style.width = `${size}px`;
       particle.style.height = `${size}px`;
 
-      // Random position
       particle.style.left = `${Math.random() * 100}%`;
       particle.style.top = `${Math.random() * 100}%`;
 
-      // Store animation data
       const data = {
-        x: Math.random() * 100 - 50, // Random horizontal velocity
-        y: Math.random() * -100 - 50, // Upward velocity
-        opacity: Math.random() * 0.5 + 0.3, // Random opacity
-        delay: Math.random() * 10, // Random delay
-        lifetime: Math.random() * 3 + 2, // How long the particle lives
+        x: Math.random() * 100 - 50,
+        y: Math.random() * -100 - 50,
+        opacity: Math.random() * 0.5 + 0.3,
+        delay: Math.random() * 10,
+        lifetime: Math.random() * 3 + 2,
         size,
       };
 
@@ -49,7 +50,6 @@ const WelcomePage = () => {
     let animationFrameId;
     let lastTime = 0;
 
-    // Animation loop
     const animate = (time) => {
       if (!lastTime) lastTime = time;
       const deltaTime = (time - lastTime) / 1000;
@@ -58,22 +58,18 @@ const WelcomePage = () => {
       particles.forEach((particle) => {
         const { element, data } = particle;
 
-        // Update particle data
         data.delay -= deltaTime;
 
         if (data.delay <= 0) {
-          // If delay is over, start animating
           data.lifetime -= deltaTime;
 
           if (data.lifetime <= 0) {
-            // Reset particle when lifetime is over
             data.delay = Math.random() * 5;
             data.lifetime = Math.random() * 3 + 2;
             element.style.opacity = "0";
             element.style.left = `${Math.random() * 100}%`;
             element.style.top = `${Math.random() * 100}%`;
           } else {
-            // Update particle position and opacity
             const newLeft =
               parseFloat(element.style.left) + data.x * deltaTime * 0.01;
             const newTop =
@@ -99,6 +95,63 @@ const WelcomePage = () => {
       });
     };
   }, []);
+  const fileUploadMutation = useMutation({
+    mutationFn: async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const token = localStorage.getItem("token");
+      const response = axios.post(REELS_UPLOAD, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["reels"]);
+      toast.success("Reel Uploaded!", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Error uploading reel", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    },
+  });
+  const handleUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      fileUploadMutation.mutate(file);
+      fileUploadMutation.isPending &&
+        toast.info("Uploading...", {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+    }
+  };
   const { userData } = useWelcome();
   const username = userData?.username;
   return (
@@ -167,7 +220,7 @@ const WelcomePage = () => {
         >
           <div className="overflow-hidden">
             <motion.h1
-              className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
+              className="text-3xl flex  md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"
               animate={{ x: [0, -100, 0] }}
               transition={{
                 repeat: Infinity,
@@ -178,9 +231,10 @@ const WelcomePage = () => {
                 backgroundSize: "200% auto",
               }}
             >
-              Welcome {username} <span className="inline-block ml-4">✨</span>
-              Welcome {username} <span className="inline-block ml-4">✨</span>
-              Welcome {username} <span className="inline-block ml-4">✨</span>
+              {/* Welcome {username} <span className="inline-block ml-4">✨</span> */}
+              <span>Welcome {username}</span>{" "}
+              <span className="inline-block ml-4">✨</span>
+              {/* Welcome {username} <span className="inline-block ml-4">✨</span> */}
             </motion.h1>
           </div>
 
@@ -220,7 +274,17 @@ const WelcomePage = () => {
               className="relative group"
             >
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-              <button className="relative flex flex-col items-center justify-center h-64 w-full rounded-xl bg-gray-800 bg-opacity-90 backdrop-blur-sm border border-gray-700 p-6 shadow-lg transition-all duration-500 hover:shadow-xl">
+              <input
+                type="file"
+                ref={inputRef}
+                className="hidden"
+                onChange={handleUpload}
+                accept="video/*"
+              />
+              <button
+                onClick={() => inputRef.current.click()}
+                className="relative flex flex-col items-center justify-center h-64 w-full rounded-xl bg-gray-800 bg-opacity-90 backdrop-blur-sm border border-gray-700 p-6 shadow-lg transition-all duration-500 hover:shadow-xl"
+              >
                 <motion.div
                   className="w-16 h-16 mb-4 text-pink-500"
                   animate={{ rotateZ: [0, 10, -10, 0] }}
